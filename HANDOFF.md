@@ -8,7 +8,7 @@ dot style. The project has three parts:
 |---|---|---|
 | Font build (Python/fontTools) | `font-build/` | Done, v2.1 font in use |
 | KernelSU module (system font + emoji) | `ksu-module/` | v1.6 installed and working |
-| LSPosed/Vector module (apps with their own fonts) | `lsposed-module/` | v1.0 confirmed working; v1.1 (Flutter) **untested** |
+| LSPosed/Vector module (apps with their own fonts) | `lsposed-module/` | v1.1 confirmed working, incl. Flutter (Immich); v1.2 adds an app icon |
 
 ---
 
@@ -147,7 +147,7 @@ An Android Studio project (AGP 8.5.2, Gradle 8.7, compileSdk 34, minSdk 29, Java
   - Latin a–Z0–9 width equals the system font's (no Latin of its own)
 - **Results** are cached in a WeakHashMap.
 
-`FlutterFonts.java` (v1.1, **untested on device**):
+`FlutterFonts.java` (v1.1, **confirmed working on Immich**):
 - **Hook:** before `io.flutter.embedding.engine.FlutterJNI.runBundleAndSnapshotFromLibrary`.
 - **Reads** `flutter_assets/FontManifest.json`, skipping icon families and assets.
 - **Builds** `cache/ndotforce_flutter_<hash>.zip`: the system font stored under
@@ -158,6 +158,11 @@ An Android Studio project (AGP 8.5.2, Gradle 8.7, compileSdk 34, minSdk 29, Java
 - **Logs:** `NdotFontForce/Flutter: redirected N font file(s)`.
 
 Suggested scope: Play Store, Phone, Messages, Contacts. The user adds Immich and the chat app.
+
+**App icon** (v1.2): adaptive icon, `res/mipmap-anydpi-v26/ic_launcher*.xml`, with vector
+layers in `res/drawable/`:
+- a dot-matrix "N" on black, with a red centre dot
+- a monochrome layer for themed icons
 
 ## 5. Problems hit and what fixed them
 
@@ -174,17 +179,14 @@ Suggested scope: Play Store, Phone, Messages, Contacts. The user adds Immich and
 
 ## 6. Open items / ideas
 
-1. **Verify Flutter redirect** (Immich). If the log says "redirected" but the font is unchanged,
-   try:
-   - hooking `FlutterJNI.nativeAttach` / `FlutterLoader.ensureInitializationComplete` earlier, or
-   - hooking the `AssetManager` used by `FlutterLoader`'s `PlatformAssetManager`.
-2. **Bold weight:** only Regular exists, so bold text looks regular. Option: generate a Bold
-   with a larger dot (DOT ≈ 80) and register it for weights ≥ 600. That needs fonts.xml
-   handling or a second file name.
-3. **DroidSans.ttf shows STOCK** after boot; something remounts it. Low impact.
-4. The emoji pattern `NotoColorEmoji*.ttf` also replaces `NotoColorEmojiFlags.ttf` with the
-   iOS font. That's harmless (iOS covers flags) but could be excluded.
-5. **Out of reach:** games with their own engines, and in-app web pages.
+1. **DroidSans.ttf shows STOCK** after boot; something remounts it. To clean up in `ksu-module/`
+   (`post-fs-data.sh` / `service.sh`).
+2. **Emoji pattern too wide:** `NotoColorEmoji*.ttf` also replaces `NotoColorEmojiFlags.ttf` with
+   the iOS font. To clean up in `ksu-module/`: exclude `*Flags*`.
+3. **Out of reach:** games with their own engines, and in-app web pages.
+
+Dropped: a Bold weight (bigger dots for weights ≥ 600). Regular only is fine.
+Done: the Flutter redirect is confirmed on Immich (v1.1).
 
 ## 7. Licensing
 
