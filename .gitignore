@@ -25,6 +25,7 @@ venv/
 # ---------------------------------------------------------------
 # Packaged outputs (publish these as GitHub Release assets instead)
 # ---------------------------------------------------------------
+release/
 *.zip
 *.apk
 *.aab

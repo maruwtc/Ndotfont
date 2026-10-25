@@ -83,15 +83,16 @@ cp NdotCJK-Regular-v2.1.ttf ksu-module/fonts/NdotCJK-Regular.ttf
 
 ## 3. KernelSU module (`ksu-module/`, id `ndot_cjk_font`, v1.7)
 
-**In the repo:** recovered from the phone's installed copy (`/data/adb/modules/ndot_cjk_font`).
-`customize.sh`, `README.md` and `META-INF/` were not kept by KernelSU at install, so they are
-**missing**: a v1.7 zip can't be packaged until they are recovered (from the v1.6 zip or the chat
-that built it). Until then, update the installed module by copying the changed scripts:
-```bash
-adb push ksu-module/post-fs-data.sh ksu-module/action.sh ksu-module/module.prop /sdcard/
-adb shell su -c "cp /sdcard/post-fs-data.sh /sdcard/action.sh /sdcard/module.prop /data/adb/modules/ndot_cjk_font/ && rm -f /data/adb/modules/ndot_cjk_font/system/fonts/NotoColorEmojiFlags.ttf"
-```
-The text below describes `customize.sh` from the original build.
+**In the repo:** the runtime scripts were recovered from the phone's installed copy
+(`/data/adb/modules/ndot_cjk_font`). KernelSU doesn't keep `customize.sh`, `README.md` or
+`META-INF/` after install, so v1.7 **recreates** them:
+- `customize.sh` is rewritten from the description below. On a fake Pixel layout it produces the
+  same 14-entry `replaced.txt` as the phone's v1.6 install, minus the flags file.
+- Its name patterns keep the hyphen (`NotoSerif-*`, `Roboto-*`). Otherwise per-script fonts like
+  `NotoSerifArmenian-VF.ttf` would be replaced and lose their glyphs.
+- On an upgrade it also takes the emoji from the installed copy (`fonts/Emoji.ttf`) and keeps the
+  `gms_fonts` flag.
+- The v1.7 zip has not been flashed from scratch yet; v1.7 was tested by copying scripts in.
 
 
 Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
@@ -132,11 +133,8 @@ Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
   - Shows each target as LIVE/STOCK (by size, following symlinks), emoji status and override state.
   - Prints the boot log.
 - **`uninstall.sh`:** clears the MIUI theme font cache.
-- **Package:**
-  ```bash
-  cd ksu-module && zip -X -r -9 ../NdotCJK-KSUNext-vX.Y.zip module.prop customize.sh post-fs-data.sh service.sh action.sh uninstall.sh README.md OFL.txt fonts META-INF
-  ```
-  Bump `version` and `versionCode` in `module.prop` each release.
+- **Package:** `python3 release.py` (see §8). Bump `version` and `versionCode` in `module.prop`
+  each release.
 
 **How CJK reaches every app:**
 - Minikin always uses the **first** font family for a character it covers (kFirstFontScore).
@@ -148,7 +146,7 @@ Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
 An Android Studio project (AGP 8.5.2, Gradle 8.7, compileSdk 34, minSdk 29, Java 17).
 - **Xposed API:** comes from compile-only stubs in `:xposed-stubs`, so no api.xposed.info repo is
   needed. Their signatures must stay identical to the real Xposed API.
-- **Build:** Android Studio → Build APK(s) → `app/build/outputs/apk/debug/app-debug.apk`.
+- **Build:** Android Studio → Build APK(s) → `app/build/outputs/apk/debug/NdotFontForce-v<version>-debug.apk`.
   The user builds it on their Windows PC, where the Android SDK lives under
   `%LOCALAPPDATA%\Android\Sdk`.
 
@@ -198,8 +196,8 @@ layers in `res/drawable/`:
 
 ## 6. Open items / ideas
 
-1. **Recover `customize.sh`, `README.md`, `META-INF/`** (see §3), then exclude
-   `NotoColorEmojiFlags.ttf` in `customize.sh` too.
+1. **Flash-test the v1.7 zip** with the recreated `customize.sh`. Afterwards, the Action
+   button should list the same 15 LIVE entries as with the copied-in v1.7 scripts.
 2. **Out of reach:** games with their own engines, and in-app web pages.
 
 Dropped: a Bold weight (bigger dots for weights ≥ 600). Regular only is fine.
@@ -214,3 +212,15 @@ are both symlinks to Roboto-Regular.ttf on blazer and show LIVE.
   The derivative is still renamed "Ndot CJK".
 - **Don't bundle** Apple's emoji in anything distributed. It's imported on-device from a
   module the user already has.
+
+## 8. Release
+
+1. Bump `ksu-module/module.prop` (`version`, `versionCode`) and/or `app/build.gradle`
+   (`versionCode`, `versionName`).
+2. Android Studio → Build APK(s). Gradle names it `NdotFontForce-v<version>-<buildType>.apk`.
+3. `python3 release.py` collects everything into `release/ksu-v<module>_app-v<app>/`:
+   - `NdotCJK-KSUNext-v<module>.zip`, built from `ksu-module/` (LF endings forced, scripts 0755,
+     never `Emoji.ttf`)
+   - `NdotFontForce-v<app>.apk`, copied from the Gradle output (a release build is preferred)
+   - `SHA256SUMS.txt`
+4. Upload that folder's files to a GitHub Release. `release/`, `*.zip` and `*.apk` are gitignored.

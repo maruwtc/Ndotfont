@@ -15,7 +15,8 @@ Does NOT cover: games with their own engines, and web pages inside apps.
 1. File > Open > select this `NdotFontForce` folder. Let Gradle sync
    (accept any SDK Platform 34 / build-tools install prompt).
 2. Build > Build App Bundle(s) / APK(s) > Build APK(s).
-3. The APK is at `app/build/outputs/apk/debug/app-debug.apk`.
+3. The APK is at `app/build/outputs/apk/debug/NdotFontForce-v<version>-debug.apk`.
+4. Optional: `python3 release.py` puts it next to the KernelSU module zip in `release/`.
 
 ## Install
 1. Copy the APK to the phone and install it.
