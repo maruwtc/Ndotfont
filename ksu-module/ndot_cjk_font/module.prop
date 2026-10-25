@@ -1,0 +1,6 @@
+id=ndot_cjk_font
+name=Ndot CJK System Font
+version=v1.6
+versionCode=7
+author=Chris Wong
+description=Nothing Ndot dot-matrix system font. Chinese (HK/TW/CN forms), Japanese and Korean redrawn as 12px Ndot-style dots. Noto CJK stays as fallback. Optional custom emoji slot (/sdcard/NdotCJK/Emoji.ttf). Turn off "Umount modules" in KernelSU settings.

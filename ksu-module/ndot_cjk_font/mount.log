@@ -1,0 +1,18 @@
+boot Sun Oct 25 14:53:18 HKT 2026
+bind /system/fonts/Roboto-Regular.ttf
+bind /system/fonts/RobotoStatic-Regular.ttf
+bind /system/fonts/RobotoFlex-Regular.ttf
+bind /system/fonts/DroidSans.ttf
+bind /system/fonts/DroidSans-Bold.ttf
+bind /system/fonts/NotoSerif-Bold.ttf
+bind /system/fonts/NotoSerif-BoldItalic.ttf
+bind /system/fonts/NotoSerif-Italic.ttf
+bind /system/fonts/NotoSerif-Regular.ttf
+bind /product/fonts/GoogleSans-Italic.ttf
+bind /product/fonts/GoogleSans-Regular.ttf
+bind /product/fonts/GoogleSansFlex-Regular.ttf
+bind /product/fonts/GoogleSansFlexClock-Regular.ttf
+bind /product/fonts/GoogleSansClock-Regular.ttf
+bind /system/fonts/NotoColorEmoji.ttf
+bind /system/fonts/NotoColorEmojiFlags.ttf
+gms emoji bind /data/data/com.google.android.gms/files/fonts/opentype/Noto_COLR_Emoji_Compat-400-100_0-0_0.ttf
