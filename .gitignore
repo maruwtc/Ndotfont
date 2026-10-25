@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------
 **/Emoji.ttf
 **/emoji/Emoji.ttf
-**/NotoColorEmoji.ttf
+**/NotoColorEmoji*.ttf
 *.jks
 *.keystore
 keystore.properties

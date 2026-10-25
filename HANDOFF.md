@@ -7,7 +7,7 @@ dot style. The project has three parts:
 | Part | Folder | Status |
 |---|---|---|
 | Font build (Python/fontTools) | `font-build/` | Done, v2.1 font in use |
-| KernelSU module (system font + emoji) | `ksu-module/` | v1.6 installed and working |
+| KernelSU module (system font + emoji) | `ksu-module/` | v1.6 installed and working; v1.7 (DroidSans/flags fixes) **untested** |
 | LSPosed/Vector module (apps with their own fonts) | `lsposed-module/` | v1.1 confirmed working, incl. Flutter (Immich); v1.2 adds an app icon |
 
 ---
@@ -81,7 +81,18 @@ cp NdotCJK-Regular-v2.1.ttf ksu-module/fonts/NdotCJK-Regular.ttf
 - **Cubic 11 alignment:** auto-calibrated against Ark glyphs (dx −1, dy 0).
 - **Superseded:** `font-build/build_font.py` is the v1 build (7×7 only).
 
-## 3. KernelSU module (`ksu-module/`, id `ndot_cjk_font`, v1.6)
+## 3. KernelSU module (`ksu-module/`, id `ndot_cjk_font`, v1.7)
+
+**In the repo:** recovered from the phone's installed copy (`/data/adb/modules/ndot_cjk_font`).
+`customize.sh`, `README.md` and `META-INF/` were not kept by KernelSU at install, so they are
+**missing**: a v1.7 zip can't be packaged until they are recovered (from the v1.6 zip or the chat
+that built it). Until then, update the installed module by copying the changed scripts:
+```bash
+adb push ksu-module/post-fs-data.sh ksu-module/action.sh ksu-module/module.prop /sdcard/
+adb shell su -c "cp /sdcard/post-fs-data.sh /sdcard/action.sh /sdcard/module.prop /data/adb/modules/ndot_cjk_font/ && rm -f /data/adb/modules/ndot_cjk_font/system/fonts/NotoColorEmojiFlags.ttf"
+```
+The text below describes `customize.sh` from the original build.
+
 
 Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
 
@@ -103,6 +114,13 @@ Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
 - **`post-fs-data.sh`:**
   - **Bind-mounts** every entry of `replaced.txt` itself, so no metamodule is needed.
     It skips a target already mounted (same size).
+  - **Symlinks** (v1.7): names like `DroidSans.ttf` are symlinks to `Roboto-Regular.ttf`. They are
+    resolved with `readlink -f` and sizes read with `stat -L`, and each real file is mounted
+    once. Before v1.7, `stat` read the symlink itself, so DroidSans showed STOCK and was
+    bind-mounted onto Roboto again every boot.
+  - **Flags** (v1.7): `*EmojiFlags*` entries are skipped, so stock Noto flags stay. Old
+    `replaced.txt` files from v1.6 still list it; the skip covers them.
+    `customize.sh` (not in the repo) should also stop matching `NotoColorEmojiFlags.ttf`.
   - **Emoji:** mounts the emoji over `/data/fonts/files/*/*Emoji*.ttf`. If no custom emoji was
     supplied, it mounts another emoji module's file early instead.
   - **Log:** written to `mount.log`.
@@ -111,7 +129,7 @@ Works on KernelSU Next and SukiSU Ultra; Magisk-compatible.
   - **Optional Google Sans override:** off unless the file `gms_fonts` exists. **It didn't work
     on this device**; the user removed the flag. Leave it off and use the LSPosed module.
 - **`action.sh`:**
-  - Shows each target as LIVE/STOCK (by size), emoji status and override state.
+  - Shows each target as LIVE/STOCK (by size, following symlinks), emoji status and override state.
   - Prints the boot log.
 - **`uninstall.sh`:** clears the MIUI theme font cache.
 - **Package:**
@@ -179,14 +197,15 @@ layers in `res/drawable/`:
 
 ## 6. Open items / ideas
 
-1. **DroidSans.ttf shows STOCK** after boot; something remounts it. To clean up in `ksu-module/`
-   (`post-fs-data.sh` / `service.sh`).
-2. **Emoji pattern too wide:** `NotoColorEmoji*.ttf` also replaces `NotoColorEmojiFlags.ttf` with
-   the iOS font. To clean up in `ksu-module/`: exclude `*Flags*`.
+1. **Test v1.7 on device:** Action button should show `LIVE /system/fonts/DroidSans.ttf ->
+   Roboto-Regular.ttf`, and flags should be the Noto ones.
+2. **Recover `customize.sh`, `README.md`, `META-INF/`** (see §3), then exclude
+   `NotoColorEmojiFlags.ttf` in `customize.sh` too.
 3. **Out of reach:** games with their own engines, and in-app web pages.
 
 Dropped: a Bold weight (bigger dots for weights ≥ 600). Regular only is fine.
-Done: the Flutter redirect is confirmed on Immich (v1.1).
+Done: the Flutter redirect is confirmed on Immich (v1.1). DroidSans STOCK and the over-wide
+emoji pattern are fixed in v1.7 (§3).
 
 ## 7. Licensing
 
