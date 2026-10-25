@@ -1,0 +1,6 @@
+# Android shell scripts must keep LF endings, even on a Windows checkout:
+# with CRLF, /system/bin/sh stops at the first if/then.
+*.sh        text eol=lf
+*.prop      text eol=lf
+xposed_init text eol=lf
+*.ttf       binary
