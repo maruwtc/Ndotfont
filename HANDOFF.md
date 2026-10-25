@@ -7,7 +7,7 @@ dot style. The project has three parts:
 | Part | Folder | Status |
 |---|---|---|
 | Font build (Python/fontTools) | `font-build/` | Done, v2.1 font in use |
-| KernelSU module (system font + emoji) | `ksu-module/` | v1.6 installed and working; v1.7 (DroidSans/flags fixes) **untested** |
+| KernelSU module (system font + emoji) | `ksu-module/` | v1.7 installed and working |
 | LSPosed/Vector module (apps with their own fonts) | `lsposed-module/` | v1.1 confirmed working, incl. Flutter (Immich); v1.2 adds an app icon |
 
 ---
@@ -193,19 +193,19 @@ layers in `res/drawable/`:
 | Play Store shows boxes for CJK | **iOS_Emoji_KSU v4.1** `pm disable`s Google Play services' FontsProvider every boot (it also wipes `/data/fonts` and Google Play services' font dir) | `pm enable` both components + clear Play's cache; disable/uninstall that module (v1.6 re-enables at install) |
 | Google Sans override never stuck | Google Play services re-downloads its font files; bind mounts in `/data/data` don't reach Play | Off by default; LSPosed module handles Google apps instead |
 | `umount: Invalid argument` from adb su | Shell is in a different mount namespace | Use `su -M -c` for the global namespace |
+| v1.7 Action shows only its first line; font back to stock | Scripts got CRLF endings from a Windows checkout; `sh` stops at the first `if … then` | `dos2unix` the scripts on the phone; `.gitattributes` now forces LF for `*.sh`/`*.prop` |
 | English stays app font, Chinese is Ndot | App bundles a Latin-only font; CJK falls back to system | LSPosed module (Flutter: v1.1) |
 
 ## 6. Open items / ideas
 
-1. **Test v1.7 on device:** Action button should show `LIVE /system/fonts/DroidSans.ttf ->
-   Roboto-Regular.ttf`, and flags should be the Noto ones.
-2. **Recover `customize.sh`, `README.md`, `META-INF/`** (see §3), then exclude
+1. **Recover `customize.sh`, `README.md`, `META-INF/`** (see §3), then exclude
    `NotoColorEmojiFlags.ttf` in `customize.sh` too.
-3. **Out of reach:** games with their own engines, and in-app web pages.
+2. **Out of reach:** games with their own engines, and in-app web pages.
 
 Dropped: a Bold weight (bigger dots for weights ≥ 600). Regular only is fine.
 Done: the Flutter redirect is confirmed on Immich (v1.1). DroidSans STOCK and the over-wide
-emoji pattern are fixed in v1.7 (§3).
+emoji pattern are fixed in v1.7 (§3), confirmed on device: DroidSans.ttf and DroidSans-Bold.ttf
+are both symlinks to Roboto-Regular.ttf on blazer and show LIVE.
 
 ## 7. Licensing
 
