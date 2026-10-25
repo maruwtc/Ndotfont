@@ -1,0 +1,62 @@
+# ---------------------------------------------------------------
+# Never commit: Apple emoji (proprietary) and signing keys
+# ---------------------------------------------------------------
+**/Emoji.ttf
+**/emoji/Emoji.ttf
+**/NotoColorEmoji.ttf
+*.jks
+*.keystore
+keystore.properties
+
+# ---------------------------------------------------------------
+# Font build: third-party source checkouts and intermediates
+# (re-clone per HANDOFF.md §2)
+# ---------------------------------------------------------------
+ark-pixel-font/
+fusion-pixel-font/
+nothingfont-main/
+font-build/*.ttf
+!ksu-module/fonts/NdotCJK-Regular.ttf
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ---------------------------------------------------------------
+# Packaged outputs (publish these as GitHub Release assets instead)
+# ---------------------------------------------------------------
+*.zip
+*.apk
+*.aab
+
+# ---------------------------------------------------------------
+# KSU module files generated on the phone at install / boot
+# ---------------------------------------------------------------
+ksu-module/replaced.txt
+ksu-module/mount.log
+ksu-module/.gmsfonts
+ksu-module/system/
+ksu-module/gms_fonts
+
+# ---------------------------------------------------------------
+# Android Studio / Gradle (lsposed-module)
+# ---------------------------------------------------------------
+.gradle/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.iml
+.idea/
+.kotlin/
+
+# ---------------------------------------------------------------
+# OS / editor
+# ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+*.swp
+*~

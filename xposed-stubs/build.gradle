@@ -1,0 +1,7 @@
+// Compile-only stand-ins for the Xposed API (the real classes are provided at runtime by
+// LSPosed / Vector). Keeps the build independent of the old api.xposed.info repository.
+plugins { id 'java-library' }
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
