@@ -6,17 +6,26 @@ LOG="$MODDIR/mount.log"
 echo "boot $(date)" > "$LOG"
 chcon -R u:object_r:system_file:s0 "$MODDIR/fonts" 2>/dev/null
 
+DONE=" "
 while IFS='|' read -r target srcrel; do
   [ -n "$target" ] || continue
   [ -n "$srcrel" ] || srcrel="fonts/NdotCJK-Regular.ttf"      # v1.0-1.3 list format
+  # v1.6 and earlier also listed NotoColorEmojiFlags.ttf; leave the stock flags alone.
+  case "$target" in *EmojiFlags*) echo "skip (flags) $target" >> "$LOG"; continue ;; esac
   src="$MODDIR/$srcrel"
   want=$(stat -c %s "$src" 2>/dev/null)
   if [ -z "$want" ]; then echo "skip (no source) $target" >> "$LOG"; continue; fi
   if [ ! -f "$target" ]; then echo "skip (absent) $target" >> "$LOG"; continue; fi
-  if [ "$(stat -c %s "$target" 2>/dev/null)" = "$want" ]; then
+  # Some names are symlinks (DroidSans.ttf -> Roboto-Regular.ttf). Work on the real
+  # file, and only once, so the same file is not bind-mounted twice.
+  real=$(readlink -f "$target")
+  [ "$real" = "$target" ] || echo "  $target -> $real" >> "$LOG"
+  case "$DONE" in *" $real "*) echo "ok (same file) $target" >> "$LOG"; continue ;; esac
+  DONE="$DONE$real "
+  if [ "$(stat -L -c %s "$real" 2>/dev/null)" = "$want" ]; then
     echo "ok (already mounted) $target" >> "$LOG"; continue
   fi
-  if mount -o bind "$src" "$target" 2>>"$LOG"; then echo "bind $target" >> "$LOG"
+  if mount -o bind "$src" "$real" 2>>"$LOG"; then echo "bind $target" >> "$LOG"
   else echo "FAIL $target" >> "$LOG"; fi
 done < "$MODDIR/replaced.txt"
 

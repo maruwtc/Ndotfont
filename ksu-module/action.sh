@@ -15,8 +15,12 @@ echo "Status of each replaced file (LIVE = replacement active):"
 while IFS='|' read -r t s; do
   [ -n "$t" ] || continue
   [ -n "$s" ] || s="fonts/NdotCJK-Regular.ttf"
+  case "$t" in *EmojiFlags*) continue ;; esac
   want=$(stat -c %s "$MODDIR/$s")
-  if [ "$(stat -c %s "$t" 2>/dev/null)" = "$want" ]; then echo "  LIVE   $t"; else echo "  STOCK  $t"; fi
+  real=$(readlink -f "$t")
+  note=""
+  [ "$real" = "$t" ] || note=" -> ${real##*/}"
+  if [ "$(stat -L -c %s "$t" 2>/dev/null)" = "$want" ]; then echo "  LIVE   $t$note"; else echo "  STOCK  $t$note"; fi
 done < "$MODDIR/replaced.txt"
 n=$(grep -c "gms bind" "$MODDIR/mount.log" 2>/dev/null)
 if [ -f "$MODDIR/gms_fonts" ] || [ -f /sdcard/NdotCJK/gms_fonts ]; then
